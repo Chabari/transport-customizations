@@ -485,8 +485,6 @@ frappe.ui.form.on('Vehicle Trip', {
 
 
     refresh: function (frm) {
-        $('button[data-label="Submit"]').hide();
-
         
         frappe.db.get_single_value('Transport Settings', 'fuel_item_group')
             .then(fuel_item_group => {
