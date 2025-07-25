@@ -199,7 +199,8 @@ fixtures = [
                     "Vehicle Trip-custom_parent_trip",
                     "Vehicle Trip-custom_offloaded_quantity",
                     "Vehicle Trip-custom_loaded_quantity",
-                    "Vehicle Trip-custom_transport_type"
+                    "Vehicle Trip-custom_transport_type",
+                    "Vehicle-custom_default_fuel_expense_account"
                 ),
             ]
         ],
