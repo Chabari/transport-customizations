@@ -339,12 +339,20 @@ def create_sales_invoice(doc, rows):
             description += "<b>" + row["assigned_vehicle"] + "/"+row["assigned_trailer"]+"<b>"
         # if row["route"]:
         #     description += "<BR>ROUTE: " + row["route"]
+        qty = row['net_weight']
+        _child_doc = frappe.db.get_value('Vehicle Trip', {'reference_doctype': "Transport Assignment", "reference_docname": row["name"]}, ['name', 'custom_loaded_quantity', 'custom_parent_trip'], as_dict=1) 
+        if _child_doc:
+            qty = _child_doc.custom_loaded_quantity
+            _child_doce = frappe.db.get_value('Vehicle Trip', {'custom_parent_trip': _child_doc.name}, ['name', 'custom_loaded_quantity'], as_dict=1) 
+            if _child_doce:
+                qty = _child_doce.custom_loaded_quantity
+            
         item = frappe._dict({
                 "item_code": row["item"],
-                "qty": row['net_weight'],
+                "qty": qty,
                 "uom": frappe.get_value("Item", row["item"], "stock_uom"),
                 "rate": row["rate"],
-                "weight_per_unit": row['net_weight'],
+                "weight_per_unit": qty,
                 "reference_dt": "Transport Assignment",
                 "reference_dn": row['name'],
                 "cost_center": row["assigned_vehicle"] + " - " + company_abbr,
