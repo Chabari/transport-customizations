@@ -334,9 +334,10 @@ def create_sales_invoice(doc, rows):
         "abbr",
     )
     for row in rows:
-        description = ""
-        if row["assigned_vehicle"]:
-            description += "<b>" + row["assigned_vehicle"] + "/"+row["assigned_trailer"]+"<b>"
+        # description = ""
+        transport_item = frappe.get_value("Transport Settings", None, "transport_item")
+        # if row["assigned_vehicle"]:
+        #     description += "<b>" + row["assigned_vehicle"] + "/"+row["assigned_trailer"]+"<b>"
         # if row["route"]:
         #     description += "<BR>ROUTE: " + row["route"]
         qty = row['net_weight']
@@ -356,7 +357,7 @@ def create_sales_invoice(doc, rows):
                 "reference_dt": "Transport Assignment",
                 "reference_dn": row['name'],
                 "cost_center": row["assigned_vehicle"] + " - " + company_abbr,
-                "description": description,
+                "description": transport_item if transport_item else "Transport AGO DPT",
             }
         )
         item_row_per.append([row, item])
