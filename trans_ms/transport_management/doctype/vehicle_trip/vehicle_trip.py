@@ -374,11 +374,13 @@ def get_order_items(name):
                     fields=['name', 'custom_parent_trip', 'custom_loaded_quantity', 'vehicle', 'custom_offloaded_quantity', 'custom_shipping_address', 'modified', 'start_date'],
                 )
     final_items = []
+    transport_item = frappe.get_value("Transport Settings", None, "transport_item")
     for itm in items:
         formatted_date = frappe.utils.format_date(itm.start_date if itm.start_date else itm.modified, "dd/MM/yyyy")
         if itm.custom_parent_trip:
             final_items.append({
                 "name": itm.name,
+                "item": transport_item if transport_item else "Transport AGO DPT",
                 "loaded_quantity": itm.custom_loaded_quantity,
                 "shipping_address": itm.custom_shipping_address,
                 "date": formatted_date,
@@ -391,6 +393,7 @@ def get_order_items(name):
             if not _child_doc:
                 final_items.append({
                     "name": itm.name,
+                    "item": transport_item if transport_item else "Transport AGO DPT",
                     "loaded_quantity": itm.custom_loaded_quantity,
                     "shipping_address": itm.custom_shipping_address,
                     "date": formatted_date,
