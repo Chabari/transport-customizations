@@ -94,15 +94,18 @@ class VehicleTrip(Document):
             self.main_route = reference_doc.route
             reference_route = frappe.get_doc("Trip Route", self.main_route)
             if len(reference_route.fixed_expenses) > 0:
+                initial_payments = self.main_requested_funds
                 self.main_requested_funds = []
                 for row in reference_route.fixed_expenses:
                     fixed_expense_doc = frappe.get_doc("Fixed Expense", row.expense)
                     aday = nowdate()
                     new_row = self.append("main_requested_funds", {})
+                    item = next((row for row in initial_payments if row.expense_type == row.expense), None)
                     new_row.request_date = aday
                     new_row.request_amount = row.amount
                     new_row.request_currency = row.currency
-                    new_row.request_status = "Pre-Approved"
+                    new_row.request_status = item.request_status if item else "Pre-Approved"
+                    new_row.journal_entry = item.journal_entry if item else None
                     new_row.expense_type = row.expense
                     new_row.expense_account = fixed_expense_doc.expense_account
                     new_row.payable_account = fixed_expense_doc.cash_bank_account
@@ -330,8 +333,10 @@ def complete_vehicle_trip(**args):
     try:
         trip = frappe.get_doc("Vehicle Trip", args.get('name'))
         trip.custom_offloaded_quantity = args.get('quantity')
-        frappe.set_value("Vehicle", trip.vehicle, "status", "Available")
-        frappe.set_value("Vehicle", trip.vehicle, "current_trip", "")
+        vehicle = frappe.get_doc("Vehicle", trip.vehicle)
+        vehicle.status = "Available"
+        vehicle.trans_ms_current_trip = ""
+        vehicle.save(ignore_permissions = True)
         trip.trip_completed = 1
         trip.save(ignore_permissions=True)
         trip.flags.ignore_permissions = True
@@ -340,6 +345,7 @@ def complete_vehicle_trip(**args):
     except Exception as e:
         frappe.log_error(frappe.get_traceback(), str(e))
         frappe.response.message = str(e)
+        
     
 def get_trip_rate(name):
     doc = frappe.get_doc("Vehicle Trip", name)

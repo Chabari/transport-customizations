@@ -25,7 +25,9 @@ frappe.ui.form.on('Vehicle Trip', {
         //   };
         });
     },
+   
     onload: function (frm) {
+        
         //frm.events.open_close_buttons(frm);
         if(frm.doc.custom_offloaded_quantity < 1){
 		    frm.toggle_display('custom_offloaded_quantity', false);
@@ -418,7 +420,9 @@ frappe.ui.form.on('Vehicle Trip', {
             frm.events.render_address_and_contact(frm);
             frm.save_or_update();
         });
+        
     },
+
 
     reduce_stock: function (frm) {
         if (frm.doc.stock_out_entry) return;
@@ -485,7 +489,7 @@ frappe.ui.form.on('Vehicle Trip', {
 
 
     refresh: function (frm) {
-        
+         
         frappe.db.get_single_value('Transport Settings', 'fuel_item_group')
             .then(fuel_item_group => {
                 frm.set_query('item_code', 'main_fuel_request', () => {
@@ -1193,6 +1197,7 @@ frappe.ui.form.on('Requested Funds Details', {
             }
         });
     }
+    
 });
 
 frappe.ui.form.on("Requested Funds Details", "request_amount", function(frm, cdt, cdn) {
@@ -1210,3 +1215,19 @@ frappe.ui.form.on("Requested Funds Details", "request_amount", function(frm, cdt
     });
     
 });
+
+function disable_approved_items(frm) {
+    
+    frm.doc.main_requested_funds.forEach((row, index) => {
+        if (row.request_status === "Approved") {
+            console.log("dddddddddddddddd")
+            // var dc = frappe.meta.get_docfield("Requested Funds Details", "request_amount", row.name);
+            // dc.read_only = 1;
+
+            
+            console.log(dc)
+        } else {
+            console.log("sssssssssssssssss")
+        }
+    });
+}

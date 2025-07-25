@@ -212,19 +212,39 @@ def set_status(doc):
 # .
 @frappe.whitelist(allow_guest=True)
 def approve_request(**args):
-    args = frappe._dict(args)
+    try:
+        args = frappe._dict(args)
+        allitems = json.loads(args.get('items'))
 
-    # Timestamp
-    ts = time.time()
-    timestamp = datetime.datetime.fromtimestamp(ts).strftime("%Y-%m-%d %H:%M:%S")
-
-    doc = frappe.get_doc("Fuel Request Table", args.request_docname)
-    doc.db_set("status", "Approved")
-    doc.db_set("approved_by", args.user)
-    doc.db_set("approved_date", timestamp)
-    set_status(args.request_docname)
-    create_fuel_jounal(doc)
-    return "Request Updated"
+        # Timestamp
+        ts = time.time()
+        timestamp = datetime.datetime.fromtimestamp(ts).strftime("%Y-%m-%d %H:%M:%S")
+        
+        processed = 0
+        total = len(allitems)
+        jv_doc = None
+        for itm in allitems:
+            itm = frappe._dict(itm)
+            doc = frappe.get_doc("Fuel Request Table", itm.request_docname)
+            doc.db_set("status", "Approved")
+            doc.db_set("approved_by", itm.user)
+            doc.db_set("approved_date", timestamp)
+            set_status(itm.request_docname)
+            jv_doc = create_fuel_jounal(doc)
+            processed += 1
+        
+        if total > processed:
+            frappe.response.message = f"Failed. Processed {str(processed)} out of {str(total)}"
+            frappe.response.success = False
+            return
+                
+        frappe.response.success = True
+        frappe.response.data = jv_doc
+    
+    except Exception as e:
+        frappe.log_error(frappe.get_traceback(), str(e))
+        frappe.response.message = str(e)
+        frappe.response.success = False
 
 @frappe.whitelist()
 def create_fuel_jounal(doc):
@@ -292,7 +312,6 @@ def create_fuel_jounal(doc):
         for account_row in jv_doc.accounts:
             set_dimension(doc, jv_doc, tr_child=account_row)
         jv_doc.save()
-        jv_doc.submit()
         jv_url = frappe.utils.get_url_to_form(jv_doc.doctype, jv_doc.name)
         si_msgprint = "Journal Entry Created <a href='{0}'>{1}</a>".format(
             jv_url, jv_doc.name
