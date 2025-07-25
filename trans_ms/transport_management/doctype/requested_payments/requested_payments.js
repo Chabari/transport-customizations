@@ -382,7 +382,7 @@ cur_frm.cscript.disburse_request = function (frm) {
 					},
 					callback: function (data) {
 						//alert(JSON.stringify(data));
-						//frm.reload_doc();
+						frm.reload_doc();
 						frappe.set_route('Form', data.message.doctype, data.message.name);
 					}
 				});
