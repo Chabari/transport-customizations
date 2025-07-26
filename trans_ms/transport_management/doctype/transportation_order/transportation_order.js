@@ -35,7 +35,7 @@ frappe.ui.form.on('Transportation Order', {
 			console.log(row, cdt, cdn);
 			return {
 				filters: {
-					status: "Available",
+					status: "Good",
 				}
 			};
 		});
