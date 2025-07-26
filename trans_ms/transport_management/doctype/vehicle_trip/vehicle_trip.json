@@ -81,7 +81,8 @@
   "main_address_display",
   "main_consignee_display",
   "main_shipper_display",
-  "amended_from"
+  "amended_from",
+  "sales_invoice"
  ],
  "fields": [
   {
@@ -527,11 +528,17 @@
   {
    "fieldname": "section_break_44",
    "fieldtype": "Section Break"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "sales_invoice",
+   "fieldtype": "Data",
+   "label": "Sales Invoice"
   }
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2024-11-18 09:40:11.415987",
+ "modified": "2025-07-26 12:20:49.173512",
  "modified_by": "Administrator",
  "module": "Transport Management",
  "name": "Vehicle Trip",

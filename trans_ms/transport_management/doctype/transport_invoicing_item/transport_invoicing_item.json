@@ -1,0 +1,74 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-07-26 11:10:52.701256",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "vehicle_trip",
+  "vehicle",
+  "shipping_address",
+  "driver",
+  "trailer",
+  "quantity"
+ ],
+ "fields": [
+  {
+   "fieldname": "vehicle_trip",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "label": "Vehicle Trip",
+   "options": "Vehicle Trip"
+  },
+  {
+   "fetch_from": "vehicle_trip.vehicle",
+   "fieldname": "vehicle",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "label": "Vehicle"
+  },
+  {
+   "fetch_from": "vehicle_trip.custom_shipping_address",
+   "fieldname": "shipping_address",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "label": "Shipping Address"
+  },
+  {
+   "fetch_from": "vehicle_trip.driver",
+   "fieldname": "driver",
+   "fieldtype": "Data",
+   "label": "Driver"
+  },
+  {
+   "fetch_from": "vehicle_trip.trailer",
+   "fieldname": "trailer",
+   "fieldtype": "Data",
+   "label": "Trailer"
+  },
+  {
+   "fetch_from": "vehicle_trip.custom_loaded_quantity",
+   "fieldname": "quantity",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "label": "Quantity"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-07-26 11:13:51.213890",
+ "modified_by": "Administrator",
+ "module": "Transport Management",
+ "name": "Transport Invoicing Item",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

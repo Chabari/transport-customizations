@@ -1,0 +1,76 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-07-26 11:08:31.759880",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "customer",
+  "get_pending_trips",
+  "all_vehicle_trips_section",
+  "amended_from",
+  "vehicle_trips"
+ ],
+ "fields": [
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer",
+   "options": "Customer"
+  },
+  {
+   "fieldname": "get_pending_trips",
+   "fieldtype": "Button",
+   "label": "Get Pending Trips"
+  },
+  {
+   "fieldname": "all_vehicle_trips_section",
+   "fieldtype": "Section Break",
+   "label": "All Vehicle Trips"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Transport Invoicing",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "depends_on": "eval: doc.customer != null",
+   "fieldname": "vehicle_trips",
+   "fieldtype": "Table",
+   "label": "Vehicle Trips",
+   "options": "Transport Invoicing Item"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2025-07-26 11:15:30.927563",
+ "modified_by": "Administrator",
+ "module": "Transport Management",
+ "name": "Transport Invoicing",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

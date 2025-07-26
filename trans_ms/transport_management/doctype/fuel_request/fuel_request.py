@@ -12,7 +12,6 @@ from frappe.model.mapper import get_mapped_doc
 from frappe.utils import nowdate
 from trans_ms.utlis.dimension import set_dimension
 
-
 class FuelRequest(Document):
     def onload(self):
         trip = frappe.get_doc(self.reference_doctype, self.reference_docname)
