@@ -45,7 +45,7 @@ def transport_trip(self):
 	final_items = []
 	items = frappe.db.sql("""SELECT 
 																			
-								name, vehicle, custom_shipping_address,	driver, trailer, custom_loaded_quantity, custom_parent_trip
+								name, vehicle, custom_shipping_address,	driver, trailer, custom_loaded_quantity, custom_parent_trip, custom_amount, custom_rate
 							FROM 
 								(`tabVehicle Trip`)
 							
@@ -54,26 +54,17 @@ def transport_trip(self):
 						""".format(self.customer), as_dict=1)
 	for itm in items:
 		vehicle_trip = itm
-		if vehicle_trip.custom_parent_trip:
-			final_items.append(frappe._dict({
-				'vehicle_trip': itm.name,
-				'vehicle': vehicle_trip.vehicle,
-				'shipping_address': vehicle_trip.custom_shipping_address,
-				'driver': vehicle_trip.driver,
-				'trailer': vehicle_trip.trailer,
-				'quantity': vehicle_trip.custom_loaded_quantity,
-			}))
-		else:
-			_child_doce = frappe.db.get_value('Vehicle Trip', {'custom_parent_trip': vehicle_trip.name}, ['name', 'custom_loaded_quantity'], as_dict=1)
-			if not _child_doce:
-				final_items.append(frappe._dict({
-					'vehicle_trip': itm.name,
-					'vehicle': vehicle_trip.vehicle,
-					'shipping_address': vehicle_trip.custom_shipping_address,
-					'driver': vehicle_trip.driver,
-					'trailer': vehicle_trip.trailer,
-					'quantity': vehicle_trip.custom_loaded_quantity,
-				}))
+		final_items.append(frappe._dict({
+			'vehicle_trip': itm.name,
+			'vehicle': vehicle_trip.vehicle,
+			'shipping_address': vehicle_trip.custom_shipping_address,
+			'driver': vehicle_trip.driver,
+			'trailer': vehicle_trip.trailer,
+			'quantity': vehicle_trip.custom_loaded_quantity,
+			'amount': vehicle_trip.custom_amount,
+			'rate': vehicle_trip.custom_rate,
+			'trip_type': "Local Trip" if vehicle_trip.custom_parent_trip else "International Trip"
+		}))
 
 	return final_items
 
@@ -110,7 +101,7 @@ def create_sales_invoice(doc):
 		# if row["route"]:
 		#     description += "<BR>ROUTE: " + row["route"]
 		qty = row.quantity
-		rate = get_trip_rate(row.vehicle_trip)
+		rate = row.rate if row.rate else get_trip_rate(row.vehicle_trip)
 		item = frappe._dict({
 				"item_code": transport_item,
 				"qty": qty,
@@ -147,6 +138,7 @@ def create_sales_invoice(doc):
 	invoice.calculate_taxes_and_totals()
 	invoice.insert(ignore_permissions=True)
 	invoice.submit()
+	frappe.set_value("Transport Invoicing", doc.name, "sales_invoice", invoice.name)
 	for item in doc.vehicle_trips:
 		frappe.set_value("Vehicle Trip", item.vehicle_trip, "sales_invoice", invoice.name)
 	frappe.msgprint(_("Success. The customer has been invoiced!"))

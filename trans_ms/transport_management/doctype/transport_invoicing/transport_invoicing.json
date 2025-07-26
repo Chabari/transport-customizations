@@ -11,7 +11,8 @@
   "get_pending_trips",
   "all_vehicle_trips_section",
   "amended_from",
-  "vehicle_trips"
+  "vehicle_trips",
+  "sales_invoice"
  ],
  "fields": [
   {
@@ -46,12 +47,19 @@
    "fieldtype": "Table",
    "label": "Vehicle Trips",
    "options": "Transport Invoicing Item"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "sales_invoice",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Sales Invoice"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-07-26 11:15:30.927563",
+ "modified": "2025-07-26 16:15:29.652465",
  "modified_by": "Administrator",
  "module": "Transport Management",
  "name": "Transport Invoicing",

@@ -11,7 +11,10 @@
   "shipping_address",
   "driver",
   "trailer",
-  "quantity"
+  "quantity",
+  "trip_type",
+  "amount",
+  "rate"
  ],
  "fields": [
   {
@@ -57,12 +60,30 @@
    "in_list_view": 1,
    "in_preview": 1,
    "label": "Quantity"
+  },
+  {
+   "default": "Local Trip",
+   "fieldname": "trip_type",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "label": "Trip Type"
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Float",
+   "label": "Amount"
+  },
+  {
+   "fieldname": "rate",
+   "fieldtype": "Float",
+   "label": "Rate"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-07-26 11:13:51.213890",
+ "modified": "2025-07-26 16:26:51.871260",
  "modified_by": "Administrator",
  "module": "Transport Management",
  "name": "Transport Invoicing Item",

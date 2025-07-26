@@ -591,6 +591,12 @@ frappe.ui.form.on('Vehicle Trip', {
                             "fieldname": "quantity",
                             "fieldtype": "Float",
                             "reqd": 1,
+                        },
+                        {
+                            "label" : "Rate/Unit Quantity",
+                            "fieldname": "rate",
+                            "fieldtype": "Float",
+                            "reqd": 1,
                         }
                     ],
                     primary_action: function() {
@@ -604,6 +610,7 @@ frappe.ui.form.on('Vehicle Trip', {
                             args: {
                                 name: frm.doc.name,
                                 quantity: data.quantity,
+                                rate: data.rate,
                             },
                             callback: function(r) {                                
                                 d.hide();

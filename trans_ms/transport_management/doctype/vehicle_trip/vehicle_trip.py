@@ -263,6 +263,8 @@ def create_vehicle_trip(**args):
                 "customer": args.customer,
                 "trip_route": args.trip_route,
                 "vehicle": args.vehicle,
+                "custom_rate": doc.rate,
+                "custom_amount": (doc.rate * doc.net_weight),
                 "transporter": args.transporter,
                 "driver": args.driver,
             }
@@ -377,36 +379,23 @@ def get_order_items(name):
     items = frappe.db.get_all(
                     "Vehicle Trip",
                     filters={"custom_transport_order": name},
-                    fields=['name', 'custom_parent_trip', 'custom_loaded_quantity', 'vehicle', 'custom_offloaded_quantity', 'custom_shipping_address', 'modified', 'start_date'],
+                    fields=['name', 'custom_parent_trip', 'custom_loaded_quantity', 'custom_rate', 'custom_amount', 'vehicle', 'custom_offloaded_quantity', 'custom_shipping_address', 'modified', 'start_date'],
                 )
     final_items = []
     transport_item = frappe.get_value("Transport Settings", None, "transport_item")
     for itm in items:
         formatted_date = frappe.utils.format_date(itm.start_date if itm.start_date else itm.modified, "dd/MM/yyyy")
-        if itm.custom_parent_trip:
-            final_items.append({
-                "name": itm.name,
-                "item": transport_item if transport_item else "Transport AGO DPT",
-                "loaded_quantity": itm.custom_loaded_quantity,
-                "shipping_address": itm.custom_shipping_address,
-                "date": formatted_date,
-                "plate": itm.vehicle,
-                "rate": get_trip_rate(itm.name),
-                "amount": get_trip_total(itm.name),
-            })
-        else:
-            _child_doc = frappe.db.get_value('Vehicle Trip', {'custom_parent_trip': itm.name}, ['name'], as_dict=1) 
-            if not _child_doc:
-                final_items.append({
-                    "name": itm.name,
-                    "item": transport_item if transport_item else "Transport AGO DPT",
-                    "loaded_quantity": itm.custom_loaded_quantity,
-                    "shipping_address": itm.custom_shipping_address,
-                    "date": formatted_date,
-                    "plate": itm.vehicle,
-                    "rate": get_trip_rate(itm.name),
-                    "amount": get_trip_total(itm.name),
-                })
+        final_items.append({
+            "name": itm.name,
+            "item": transport_item if transport_item else "Transport AGO DPT",
+            "loaded_quantity": itm.custom_loaded_quantity,
+            "shipping_address": itm.custom_shipping_address,
+            "date": formatted_date,
+            "plate": itm.vehicle,
+            "rate": itm.custom_rate if itm.custom_rate else get_trip_rate(itm.name),
+            "amount": itm.custom_amount if itm.custom_amount else get_trip_total(itm.name),
+        })
+        
     return final_items
     
     
@@ -436,6 +425,8 @@ def create_local_trip(**args):
                 "trailer_plate_number": doc.trailer_plate_number,
                 "transporter_type": doc.transporter_type,
                 "driver": doc.driver,
+                "custom_rate": args.get('rate'),
+                "custom_amount": (args.get('rate') * args.get('quantity')),
                 "driver_name": doc.driver_name,
                 "driving_licence_no": doc.driving_licence_no
             }
