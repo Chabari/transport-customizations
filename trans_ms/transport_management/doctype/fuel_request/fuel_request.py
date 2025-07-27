@@ -292,7 +292,15 @@ def create_fuel_jounal(doc):
         accounts.append(credit_row)
 
         company = parent_request_doc.company
-        user_remark = "Fuel for Vehicle Trip No: {0}".format(parent_request_doc.reference_docname)
+        
+        vehicle_trip = frappe.get_doc("Vehicle Trip", parent_request_doc.reference_docname)
+        
+        shipping_address = vehicle_trip.customer
+        if vehicle_trip.custom_shipping_address:
+            shipping_address = f"{vehicle_trip.customer} - {vehicle_trip.custom_shipping_address}"
+            
+        user_remark = "Fuel for Vehicle Trip No: {0} for Vehicle Reg {1}, Shipping Address: {2}".format(vehicle_trip.name, vehicle.name, shipping_address)
+        
         date = nowdate()
         jv_doc = frappe.get_doc(
             dict(
@@ -317,8 +325,6 @@ def create_fuel_jounal(doc):
         )
         frappe.set_value("Fuel Request Table", doc.name, "journal_entry", jv_doc.name)
         return jv_doc
-
-
 
 
 @frappe.whitelist(allow_guest=True)

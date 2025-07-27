@@ -426,7 +426,7 @@ def create_local_trip(**args):
                 "transporter_type": doc.transporter_type,
                 "driver": doc.driver,
                 "custom_rate": args.get('rate'),
-                "custom_amount": (args.get('rate') * args.get('quantity')),
+                "custom_amount": (flt(args.get('rate')) * flt(args.get('quantity'))),
                 "driver_name": doc.driver_name,
                 "driving_licence_no": doc.driving_licence_no
             }
