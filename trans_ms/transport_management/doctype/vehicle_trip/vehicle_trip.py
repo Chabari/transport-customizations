@@ -586,7 +586,11 @@ def create_fund_jl(doc, row):
     accounts.append(credit_row)
 
     company = doc.company
-    user_remark = "Vehicle Trip No: {0}".format(doc.name)
+    shipping_address = doc.customer
+    if doc.custom_shipping_address:
+        shipping_address = f"{doc.customer} - {doc.custom_shipping_address}"
+        
+    user_remark = "Vehicle Trip No: {0} for Vehicle Reg {1}, Shipping Address: {2}".format(doc.name, doc.vehicle, shipping_address)
     date = nowdate()
     jv_doc = frappe.get_doc(
         dict(
@@ -648,8 +652,12 @@ def create_fund_jl_row(**args):
                 "abbr",
             )
             company = doc.company
-            user_remark = "Vehicle Trip No: {0}".format(doc.name)
-            
+            shipping_address = doc.customer
+            if doc.custom_shipping_address:
+                shipping_address = f"{doc.customer} - {doc.custom_shipping_address}"
+                
+            user_remark = "Vehicle Trip No: {0} for Vehicle Reg {1}, Shipping Address: {2}".format(doc.name, doc.vehicle, shipping_address)
+                    
             # ........................................................................
             
             if row.journal_entry:
