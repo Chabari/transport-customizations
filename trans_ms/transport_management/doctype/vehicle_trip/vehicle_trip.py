@@ -85,6 +85,7 @@ class VehicleTrip(Document):
 
     def validate(self):
         self.validate_fuel_requests()
+        self.validate_expense_request()
         self.set_permits()
 
     def set_expenses(self):
@@ -139,6 +140,18 @@ class VehicleTrip(Document):
         # validate_requested_funds(self)
         # self.set_expenses()
         self.validate_main_route_inputs()
+        
+    def validate_expense_request(self):
+        if not self.reference_doctype and self.main_requested_funds:
+            funds_args = {
+                "reference_doctype": "Vehicle Trip",
+                "reference_docname": self.name,
+                "customer": self.customer,
+                "vehicle_no": self.vehicle,
+                "driver": self.driver,
+                "trip_route": self.main_route
+            }
+            request_funds(**funds_args)
          
     def validate_fuel_requests(self):
         make_request = False
