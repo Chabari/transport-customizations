@@ -10,6 +10,11 @@ from frappe.utils import nowdate
 
 
 class VehicleInspection(Document):
+    def before_insert(self):
+        vehicle = frappe.get_doc("Vehicle", self.vehicle_plate_number)
+        vehicle.status = "Booked for Inspection"
+        vehicle.save(ignore_permissions = True)
+        
     def before_submit(self):
         if self.vehicle_status in ["Booked"]:
             frappe.throw("<b>Failed, Vehicle cannot be in status Booked</b>")
@@ -18,6 +23,11 @@ class VehicleInspection(Document):
         vehicle = frappe.get_doc("Vehicle", self.vehicle_plate_number)
         vehicle.status = self.vehicle_status
         vehicle.save(ignore_permissions = True)
+        
+    def on_trash(self):
+        vehicle = frappe.get_doc("Vehicle", self.vehicle_plate_number)
+        vehicle.status = "Available"
+        vehicle.save()
 
 
 @frappe.whitelist(allow_guest=True)

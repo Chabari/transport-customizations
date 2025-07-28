@@ -119,7 +119,6 @@ cur_frm.cscript.approve_request = function (frm) {
                                 frappe.msgprint(__(data.message));
                                 return
                             }
-                            frm.reload_doc();
 						    frappe.set_route('Form', data.data.doctype, data.data.name);
                         }
                     });

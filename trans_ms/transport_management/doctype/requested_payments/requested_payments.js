@@ -23,6 +23,7 @@ frappe.ui.form.on('Requested Payments', {
 		html3 += '<button style="background-color: red; color: #FFF;" class="btn btn-default btn-xs" onclick="cur_frm.cscript.accounts_cancel(\'' + frm + '\');">Cancel</button>';
 		$(frm.fields_dict.html1.wrapper).html(html3);
 
+
 		// //cur_frm.disable_save();
 		// frappe.after_ajax(function () {
 		// 	frm.events.show_hide_sections(frm);
@@ -30,6 +31,7 @@ frappe.ui.form.on('Requested Payments', {
 
 		// var htmd = '<button style="background-color: black; color: #FFF;" class="btn btn-default btn-xs" onclick="cur_frm.cscript.disburse_request(\'' + frm + '\');">Disburse</button> ';
 		// $(frm.fields_dict.disburse_buttons.wrapper).html(htmd);
+
 
 	},
 
@@ -72,6 +74,7 @@ frappe.ui.form.on('Requested Payments', {
 		if (total_request_tsh == 0 && total_request_usd == 0 && frm.doc.approval_status != "Processed") {
 			frm.set_value('approval_status', 'Processed');
 			frm.save_or_update();
+			frm.reload_doc();
 		}
 
 
@@ -114,10 +117,12 @@ frappe.ui.form.on('Requested Payments', {
 		if (total_usd > 0 && total_tsh > 0 && total_usd >= total_approved_usd && total_tsh >= total_approved_tsh && frm.doc.payment_status != "Paid") {
 			frm.set_value('payment_status', "Paid");
 			frm.save_or_update();
+			frm.reload_doc();
 		}
 		else if ((total_approved_tsh > total_tsh || total_approved_usd > total_usd) && frm.doc.payment_status != "Waiting Payment") {
 			frm.set_value('payment_status', 'Waiting Payment');
 			frm.save_or_update();
+			frm.reload_doc();
 		}
 
 		cur_frm.get_field("total_paid_amount").wrapper.innerHTML = '<p class="text-muted small">Total Amount Paid</p><b>USD ' + total_usd.toLocaleString() + ' <br> TZS ' + total_tsh.toLocaleString() + '</b>';
@@ -156,6 +161,7 @@ frappe.ui.form.on('Requested Payments', {
 		if(disbur === 1 && frm.doc.payment_status != "Paid"){
 			frm.set_value('payment_status', "Paid");
 			frm.save_or_update();
+			frm.reload_doc();
 		}
 		frm.get_field("total_amount").wrapper.innerHTML = '<p class="text-muted small">Total Amount</p><b>USD ' + amount_usd.toLocaleString() + ' <br> TZS ' + amount_tsh.toLocaleString() + '</b>';
 	},
@@ -382,7 +388,6 @@ cur_frm.cscript.disburse_request = function (frm) {
 					},
 					callback: function (data) {
 						//alert(JSON.stringify(data));
-						frm.reload_doc();
 						frappe.set_route('Form', data.message.doctype, data.message.name);
 					}
 				});
@@ -428,7 +433,6 @@ cur_frm.cscript.approve_request = function (frm) {
 					},
 					callback: function (data) {
 						//alert(JSON.stringify(data));
-						frm.reload_doc();
 						frappe.set_route('Form', data.message.doctype, data.message.name);
 					}
 				});
