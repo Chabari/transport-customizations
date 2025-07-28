@@ -21,7 +21,7 @@ from erpnext.accounts.doctype.budget.budget import validate_expense_against_budg
 
 class RequestedPayments(Document):
     def onload(self):
-        pass
+        load_db(self)
 
     def get_all_children(self, parenttype=None):
         # For getting children
@@ -32,123 +32,125 @@ class RequestedPayments(Document):
         self.update_child_table("payments_reference")
 
     def load_from_db(self):
-        """Load document and children from database and create properties
-        from fields"""
-        if not getattr(self, "_metaclass", False) and self.meta.issingle:
-            single_doc = frappe.db.get_singles_dict(self.doctype)
-            if not single_doc:
-                single_doc = frappe.new_doc(self.doctype).as_dict()
-                single_doc["name"] = self.doctype
-                del single_doc["__islocal"]
+        load_db(self)
 
-            super(Document, self).__init__(single_doc)
-            self.init_valid_columns()
-            self._fix_numeric_types()
+def load_db(self):
+    """Load document and children from database and create properties
+    from fields"""
+    if not getattr(self, "_metaclass", False) and self.meta.issingle:
+        single_doc = frappe.db.get_singles_dict(self.doctype)
+        if not single_doc:
+            single_doc = frappe.new_doc(self.doctype).as_dict()
+            single_doc["name"] = self.doctype
+            del single_doc["__islocal"]
 
-        else:
-            d = frappe.db.get_value(self.doctype, self.name, "*", as_dict=1)
-            if not d:
-                frappe.throw(
-                    _("{0} {1} not found").format(_(self.doctype), self.name),
-                    frappe.DoesNotExistError,
-                )
+        super(Document, self).__init__(single_doc)
+        self.init_valid_columns()
+        self._fix_numeric_types()
 
-            super(Document, self).__init__(d)
+    else:
+        d = frappe.db.get_value(self.doctype, self.name, "*", as_dict=1)
+        if not d:
+            frappe.throw(
+                _("{0} {1} not found").format(_(self.doctype), self.name),
+                frappe.DoesNotExistError,
+            )
 
-        if self.name == "DocType" and self.doctype == "DocType":
-            from frappe.model.meta import doctype_table_fields
+        super(Document, self).__init__(d)
 
-            table_fields = doctype_table_fields
-        else:
-            table_fields = self.meta.get_table_fields()
+    if self.name == "DocType" and self.doctype == "DocType":
+        from frappe.model.meta import doctype_table_fields
 
-        for df in table_fields:
-            # Load details for payments already paid
-            if df.fieldname == "payments_reference":
-                children = frappe.db.get_values(
-                    df.options,
-                    {
-                        "parent": self.name,
-                        "parenttype": self.doctype,
-                        "parentfield": df.fieldname,
-                    },
-                    "*",
-                    as_dict=True,
-                    order_by="idx asc",
-                )
-                if children:
-                    self.set(df.fieldname, children)
-                else:
-                    self.set(df.fieldname, [])
-            elif (
-                df.fieldname == "requested_funds"
-            ):  # Load requests which are not approved nor rejected
-                children = frappe.db.get_values(
-                    df.options,
-                    {
-                        "parent": ["=", self.get("reference_docname")],
-                        "parenttype": ["=", self.get("reference_doctype")],
-                        "parentfield": [
-                            "in",
-                            (
-                                "requested_funds",
-                                "main_requested_funds",
-                                "return_requested_funds",
-                            ),
-                        ],
-                        "request_status": [
-                            "in",
-                            ("open", "Requested", "Recommended", "Pre-Approved"),
-                        ],
-                    },
-                    "*",
-                    as_dict=True,
-                    order_by="idx asc",
-                )
-                if children:
-                    self.set(df.fieldname, children)
-                else:
-                    self.set(df.fieldname, [])
-            elif df.fieldname == "accounts_approval":
-                children = frappe.db.get_values(
-                    "Requested Funds Details",
-                    {
-                        "parent": ["=", self.get("reference_docname")],
-                        "parenttype": ["=", self.get("reference_doctype")],
-                        "parentfield": [
-                            "in",
-                            (
-                                "requested_funds",
-                                "main_requested_funds",
-                                "return_requested_funds",
-                            ),
-                        ],
-                        "request_status": [
-                            "in",
-                            (
-                                "Approved",
-                                "Rejected",
-                                "Accounts Approved",
-                                "Accounts Rejected",
-                                "Accounts Cancelled",
-                            ),
-                        ],
-                    },
-                    "*",
-                    as_dict=True,
-                    order_by="idx asc",
-                )
-                if children:
-                    for child in children:
-                        child.reference = child.name
-                    self.set(df.fieldname, children)
-                else:
-                    self.set(df.fieldname, [])
+        table_fields = doctype_table_fields
+    else:
+        table_fields = self.meta.get_table_fields()
 
-        # sometimes __setup__ can depend on child values, hence calling again at the end
-        if hasattr(self, "__setup__"):
-            self.__setup__()
+    for df in table_fields:
+        # Load details for payments already paid
+        if df.fieldname == "payments_reference":
+            children = frappe.db.get_values(
+                df.options,
+                {
+                    "parent": self.name,
+                    "parenttype": self.doctype,
+                    "parentfield": df.fieldname,
+                },
+                "*",
+                as_dict=True,
+                order_by="idx asc",
+            )
+            if children:
+                self.set(df.fieldname, children)
+            else:
+                self.set(df.fieldname, [])
+        elif (
+            df.fieldname == "requested_funds"
+        ):  # Load requests which are not approved nor rejected
+            children = frappe.db.get_values(
+                df.options,
+                {
+                    "parent": ["=", self.get("reference_docname")],
+                    "parenttype": ["=", self.get("reference_doctype")],
+                    "parentfield": [
+                        "in",
+                        (
+                            "requested_funds",
+                            "main_requested_funds",
+                            "return_requested_funds",
+                        ),
+                    ],
+                    "request_status": [
+                        "in",
+                        ("open", "Requested", "Recommended", "Pre-Approved"),
+                    ],
+                },
+                "*",
+                as_dict=True,
+                order_by="idx asc",
+            )
+            if children:
+                self.set(df.fieldname, children)
+            else:
+                self.set(df.fieldname, [])
+        elif df.fieldname == "accounts_approval":
+            children = frappe.db.get_values(
+                "Requested Funds Details",
+                {
+                    "parent": ["=", self.get("reference_docname")],
+                    "parenttype": ["=", self.get("reference_doctype")],
+                    "parentfield": [
+                        "in",
+                        (
+                            "requested_funds",
+                            "main_requested_funds",
+                            "return_requested_funds",
+                        ),
+                    ],
+                    "request_status": [
+                        "in",
+                        (
+                            "Approved",
+                            "Rejected",
+                            "Accounts Approved",
+                            "Accounts Rejected",
+                            "Accounts Cancelled",
+                        ),
+                    ],
+                },
+                "*",
+                as_dict=True,
+                order_by="idx asc",
+            )
+            if children:
+                for child in children:
+                    child.reference = child.name
+                self.set(df.fieldname, children)
+            else:
+                self.set(df.fieldname, [])
 
+    # sometimes __setup__ can depend on child values, hence calling again at the end
+    if hasattr(self, "__setup__"):
+        self.__setup__()
 
 def get_outstanding_payments(self, account_currency):
     # Timestamp
