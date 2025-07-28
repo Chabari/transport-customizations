@@ -554,6 +554,12 @@ frappe.ui.form.on('Vehicle Trip', {
                             "fieldtype": "Float",
                             "reqd": 1,
                             "default": frm.doc.custom_loaded_quantity
+                        },
+                        {
+                            "label" : "Trip End Date",
+                            "fieldname": "end_date",
+                            "fieldtype": "Date",
+                            "reqd": 1,
                         }
                     ],
                     primary_action: function() {
@@ -563,6 +569,7 @@ frappe.ui.form.on('Vehicle Trip', {
                             args: {
                                 name: frm.doc.name,
                                 quantity: data.quantity,
+                                end_date: data.end_date,
                             },
                             callback: function(r) {
                                 frappe.msgprint(__(r.message));

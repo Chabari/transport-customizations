@@ -22,7 +22,6 @@ class VehicleTrip(Document):
     #     self.set_driver()
 
     def before_submit(self):
-        self.trip_completed = 1
         self.validate_request_status()
 
     def on_submit(self):
@@ -221,6 +220,8 @@ class VehicleTrip(Document):
             
             if row.request_status == "Approved" and not row.journal_entry:
                 frappe.throw("<b>All approved fund requests must have a Journal Entry before submitting the trip</b>")
+                
+        self.trip_completed = 1
 
 @frappe.whitelist(allow_guest=True)
 def create_vehicle_trip(**args):
@@ -335,11 +336,7 @@ def complete_vehicle_trip(**args):
     try:
         trip = frappe.get_doc("Vehicle Trip", args.get('name'))
         trip.custom_offloaded_quantity = args.get('quantity')
-        vehicle = frappe.get_doc("Vehicle", trip.vehicle)
-        vehicle.status = "Available"
-        vehicle.trans_ms_current_trip = ""
-        vehicle.save(ignore_permissions = True)
-        trip.trip_completed = 1
+        trip.end_date = args.get('end_date')
         trip.save(ignore_permissions=True)
         trip.flags.ignore_permissions = True
         trip.submit()

@@ -4,7 +4,7 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import nowdate
+from frappe.utils import nowdate, cstr, cint, flt, comma_or, now
 from trans_ms.utlis.dimension import set_dimension
 from erpnext import get_default_company, get_default_currency
 
@@ -12,10 +12,14 @@ class TransportInvoicing(Document):
     
 	def before_submit(self):
 		items = self.vehicle_trips
+		total = 0
 		for itm in items:
+			total += flt(itm.amount)
 			vehicle_trip = frappe.get_doc("Vehicle Trip", itm.vehicle_trip)
 			if vehicle_trip.sales_invoice:
 				frappe.throw("<b>Failed. Vehicle trip {0} has already been invoiced!</b>".format(vehicle_trip.name))
+		self.grand_total = total
+  
 	def on_submit(self):
 		create_sales_invoice(self)
 		
@@ -33,10 +37,11 @@ class TransportInvoicing(Document):
 			frappe.throw(_("Please select Customer first"),title=_("Customer Required"))
 
 		""" Pull trips which are submitted based on criteria selected"""
-		submitted_si = transport_trip(self)
+		submitted_si, total = transport_trip(self)
 
 		if submitted_si:
 			self.set('vehicle_trips', submitted_si)
+			self.grand_total = total
 			frappe.msgprint(_("Vehicle trips generation completed"),title=_("Vehicle trips generation"))
 		else:
 			frappe.msgprint(_("Sales Vehicle trips are not available for the customer"))
@@ -45,15 +50,17 @@ def transport_trip(self):
 	final_items = []
 	items = frappe.db.sql("""SELECT 
 																			
-								name, vehicle, custom_shipping_address,	driver, trailer, custom_loaded_quantity, custom_parent_trip, custom_amount, custom_rate
+								name, vehicle, custom_shipping_address,	driver, trailer, custom_loaded_quantity, custom_parent_trip, custom_amount, custom_rate, end_date
 							FROM 
 								(`tabVehicle Trip`)
 							
 							WHERE
 								sales_invoice is null and customer = '{0}'
 						""".format(self.customer), as_dict=1)
+	total = 0
 	for itm in items:
 		vehicle_trip = itm
+		total += flt(vehicle_trip.custom_amount)
 		final_items.append(frappe._dict({
 			'vehicle_trip': itm.name,
 			'vehicle': vehicle_trip.vehicle,
@@ -63,10 +70,11 @@ def transport_trip(self):
 			'quantity': vehicle_trip.custom_loaded_quantity,
 			'amount': vehicle_trip.custom_amount,
 			'rate': vehicle_trip.custom_rate,
+			'end_date': vehicle_trip.end_date,
 			'trip_type': "Local Trip" if vehicle_trip.custom_parent_trip else "International Trip"
 		}))
 
-	return final_items
+	return final_items, total
 
  
 def get_trip_rate(name):

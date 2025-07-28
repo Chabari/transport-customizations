@@ -14,7 +14,8 @@
   "quantity",
   "trip_type",
   "amount",
-  "rate"
+  "rate",
+  "end_date"
  ],
  "fields": [
   {
@@ -78,12 +79,18 @@
    "fieldname": "rate",
    "fieldtype": "Float",
    "label": "Rate"
+  },
+  {
+   "fetch_from": "vehicle_trip.end_date",
+   "fieldname": "end_date",
+   "fieldtype": "Date",
+   "label": "Date"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-07-26 16:26:51.871260",
+ "modified": "2025-07-28 07:27:19.351770",
  "modified_by": "Administrator",
  "module": "Transport Management",
  "name": "Transport Invoicing Item",

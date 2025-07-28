@@ -1,6 +1,6 @@
 {
  "actions": [],
- "autoname": "format:VT-{DD}-{MM}-{YY}-{####}",
+ "autoname": "format:VT-{MM}-{YY}-{####}",
  "creation": "2017-04-18 02:06:03.433433",
  "default_view": "List",
  "doctype": "DocType",
@@ -23,6 +23,7 @@
   "customer",
   "section_main_trip",
   "start_date",
+  "end_date",
   "main_customer",
   "size",
   "main_cargo_category",
@@ -534,11 +535,17 @@
    "fieldname": "sales_invoice",
    "fieldtype": "Data",
    "label": "Sales Invoice"
+  },
+  {
+   "fieldname": "end_date",
+   "fieldtype": "Date",
+   "label": "End Date",
+   "read_only": 1
   }
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2025-07-26 12:20:49.173512",
+ "modified": "2025-07-28 07:48:07.931875",
  "modified_by": "Administrator",
  "module": "Transport Management",
  "name": "Vehicle Trip",
