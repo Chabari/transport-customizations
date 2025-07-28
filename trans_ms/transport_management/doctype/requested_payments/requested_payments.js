@@ -388,10 +388,14 @@ cur_frm.cscript.disburse_request = function (frm) {
 					},
 					callback: function (data) {
 						//alert(JSON.stringify(data));
-						frappe.set_route('Form', data.message.doctype, data.message.name);
+						if (!data.exc) {
+							frappe.set_route('Form', data.message.doctype, data.message.name);
+						}else{
+							location.reload();
+						}
 					}
 				});
-				// location.reload();
+				// 
 			},
 			function () {
 				//Do nothing
