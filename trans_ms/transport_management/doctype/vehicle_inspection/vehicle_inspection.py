@@ -46,8 +46,6 @@ def book_inspection(**args):
     vehicle_inspection.date = nowdate()
     vehicle_inspection.vehicle_status = "Booked"
     vehicle_inspection.save(ignore_permissions=True)
-    vehicle.status = "Booked for Inspection"
-    vehicle.save(ignore_permissions = True)
     frappe.response.success = True
     frappe.response.data = vehicle_inspection
     return
