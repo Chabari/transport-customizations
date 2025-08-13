@@ -69,7 +69,7 @@ frappe.ui.form.on('Transportation Order', {
 				});
 			});
 		frm.events.calculate_net_weight(frm);
-
+		frm.events.check_assignment_status(frm);
 
 	},
 
@@ -460,6 +460,27 @@ frappe.ui.form.on('Transportation Order', {
 		}
 	},
 
+	check_assignment_status: function (frm) {
+		var total_assigned = 0;
+		var total_ass = 0;
+		if(frm.doc.custom_total_weight){
+			total_ass = frm.doc.custom_total_weight
+		}
+		if (frm.doc.assign_transport) {
+			frm.doc.assign_transport.forEach(function(row){			
+				total_assigned += row.net_weight;
+			});
+		}
+		if(total_assigned > 0 && frm.doc.assignment_status != "Fully Assigned"){
+			if(total_assigned < total_ass){
+				frm.set_value('assignment_status', "Partially Assigned");
+			}else{
+				frm.set_value('assignment_status', "Fully Assigned");
+			}
+			frm.save_or_update();
+		}
+	},
+
 	set_items_rate: function (frm) {
 		if (cur_frm.doc.assign_transport) {
 			frm.doc.assign_transport.forEach(function (row) {
@@ -670,6 +691,7 @@ frappe.ui.form.on("Transport Assignment", {
 		{
 			frappe.msgprint('The assigned vehicle is En Route on another trip and has not offloaded. Please offload the current cargo before starting new trip.', 'Not Allowed');
 		}
+		
 		else if (doc.vehicle_status == 3) {
 			frappe.confirm(
 				'The vehicle is En Route on another trip. Set as return cargo? If you select no, a new trip will be created',
